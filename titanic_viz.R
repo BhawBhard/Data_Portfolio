@@ -2,7 +2,10 @@ install.packages("tidyverse")
 library(tidyverse)
 install.packages("plotly")
 library(plotly)
+
+# View of table
 View(titanic_data_cleaned)
+# Structure of Table
 str(titanic_data_cleaned)
 
 #Bar plot for survived passengers
