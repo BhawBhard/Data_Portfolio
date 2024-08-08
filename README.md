@@ -11,4 +11,4 @@
 - **SQL**
 - **R**
 - **Python**
-####  These projects demonstrate my ability to analyse and present data in a clear and visually appealing way, making it easy for decision makers to understand the insights and take action.
+
