@@ -1,0 +1,304 @@
+-- Select first_name, last_name from customer;
+-- describe film;
+-- select distinct rating from film;
+--  select title from film where rating = 'PG';
+--  select title, release_year from film where release_year = '2006';
+--  select count(film_id) from film ;
+--  select email from customer limit 20;
+--  select count(address_id) from store ;
+--  select * from rental limit 10;
+--  select first_name, last_name from staff; 
+--  
+--  select title from film where title like '%Love%';
+--  select count(customer_id) from customer; total number of customer
+ 
+SELECT customer.first_name, customer.last_name
+FROM customer 
+INNER JOIN rental   ON customer.customer_id = rental.customer_id
+GROUP BY customer.customer_id
+HAVING COUNT(rental.rental_id) > 5;
+
+ select name from category ;
+ -- Fils that have action in their category
+ SELECT film.title
+FROM film
+JOIN film_category ON film.film_id = film_category.film_id
+JOIN category ON film_category.category_id = category.category_id
+WHERE category.name = 'Action';
+
+
+
+
+--- Number of customers in each city
+SELECT 
+    city.city, COUNT(customer.customer_id)
+FROM
+    customer,
+    address,
+    city
+WHERE
+    address.address_id = customer.address_id
+        AND city.city_id = address.city_id
+GROUP BY city.city
+ORDER BY city;
+
+select distinct district
+from address
+Inner join  store  on address.address_id = store.address_id
+Group by address.district;
+
+select actor.actor_id, count(film_actor.film_id) from actor, film_actor
+where actor.actor_id = film_actor.actor_id;
+
+
+-- Find the names of actors who have appeared in more than 10 films.
+
+SELECT 
+    CONCAT(actor.first_name, ' ', actor.last_name) AS actor_full_name
+FROM
+    actor
+        INNER JOIN
+    film_actor ON actor.actor_id = film_actor.actor_id
+GROUP BY film_actor.actor_id
+HAVING COUNT(film_actor.film_id) > 10;
+
+SELECT 
+    CONCAT(actor.first_name, ' ', actor.last_name) AS actor_full_name
+FROM
+    film_actor, actor
+  where   actor.actor_id = film_actor.actor_id
+GROUP BY film_actor.actor_id
+HAVING COUNT(film_actor.film_id) > 10;
+-- 
+SELECT 
+    customer_id,
+    GET_CUSTOMER_BALANCE(customer_id, DATE('2005-06-24'))
+FROM
+    customer
+ORDER BY customer_id DESC;
+
+-- List the titles of films that have a rental rate less than $2.
+select title, rental_rate from film where rental_rate < 2;
+
+-- Find the titles of films that have a length greater than 120 minutes.
+
+select title , length from film where length > 120 order by length desc ;
+
+
+-- Retrieve the first and last names of customers who have not rented any films.
+-- Retrieve the first and last names of customers who have rented more than 5 films.
+select concat(customer.first_name, customer.last_name) as FullName from customer 
+Inner Join rental on customer.customer_id = rental.customer_id
+group by customer.customer_id
+having count( rental.rental_id) > 5;
+-- answer to ques is remove group by and having statements and just put where rental.rental_id is null;
+
+-- Find the average rental rate of all films.
+select avg(rental_rate) from film ;
+-- List the titles of films that have a rental duration of 7 days.
+select title ,rental_duration from film where rental_duration = 7;
+
+-- Retrieve the first and last names of customers who have made payments greater than $5.
+select concat(customer.first_name, ' ' ,  customer.last_name) as FullName from customer 
+Inner Join payment on customer.customer_id = payment.customer_id
+group by customer.customer_id
+having sum(payment.amount)  > 5;
+
+-- Find the total amount of payments made by each customer.
+select concat(customer.first_name, ' ' ,  customer.last_name) as FullName, sum(payment.amount) as Total_Paid  from customer , payment 
+where customer.customer_id = payment.customer_id
+group by customer.customer_id;
+
+-- List the titles of films that have a replacement cost greater than $20.
+select title , replacement_cost from film where replacement_cost > 20;
+
+-- Retrieve the first and last names of customers who live in California.
+
+select concat(customer.first_name, ' ' ,  customer.last_name) as FullName, address.district
+from customer, address
+where  customer.address_id = address.address_id and address.district = 'california';
+
+-- Find the titles of films that have been rented in the last month.
+select film.title, rental.rental_date from film
+Inner Join Inventory on  film.film_id = inventory.film_id 
+Inner join rental on inventory.inventory_id = rental.inventory_id 
+where  rental.rental_date between  DATE_SUB('2005-07-25', INTERVAL 1 MONTH) and '2005-07-25';
+ 
+ 
+
+
+-- List the first and last names of customers who have rented films in the last week.
+select  concat(customer.first_name, ' ' ,  customer.last_name) as FullName, rental.rental_date
+ from customer
+inner join rental on rental.customer_id = customer.customer_id
+where  rental.rental_date >=  DATE_SUB("2005-05-25", INTERval -10 day);
+
+-- Find the total revenue generated by each store.
+select sum(payment.amount) as Total, store.store_id from payment 
+inner join staff on payment.staff_id = staff.staff_id
+inner join store on store.store_id = staff.store_id
+group by store.store_id;
+
+-- List the titles of films that have never been rented.
+select title from film where rental_duration is Null ;
+
+-- 
+select  concat(customer.first_name, ' ' ,  customer.last_name) as FullName, store.store_id from customer
+inner join store on customer.store_id = store.store_id
+group by customer.customer_id
+having count(distinct store.store_id ) = 2;
+
+-- Find the titles of films that have been rented more than 50 times.
+
+select film.title  from film
+Inner Join Inventory on  film.film_id = inventory.film_id 
+Inner join rental on inventory.inventory_id = rental.inventory_id 
+group by film.title
+having count( rental.rental_id) > 30;
+
+-- Find the average length of all films in each category.
+
+select category.name , avg(film.length) as AverageLength from film 
+Inner join film_category on film.film_id = film_category.film_id
+Inner join category on  category.category_id = film_category.category_id
+group by category.name ;
+
+-- List the first and last names of customers who have rented films with a rating of 'R'.
+
+SELECT 
+   distinct CONCAT(customer.first_name,
+            ' ',
+            customer.last_name) AS FullName
+FROM
+    customer,
+    film,
+    inventory,
+    rental
+WHERE
+    film.rating = 'R'
+        AND film.film_id = inventory.film_id
+        AND inventory.inventory_id = rental.inventory_id
+        AND rental.customer_id = customer.customer_id
+ORDER BY FullName;
+
+-- Find the titles of films that have been rented by customers living in New York.
+
+SELECT 
+   distinct film.title as Title
+FROM
+    customer,
+    film,
+    inventory,
+    rental,
+    address,
+    city
+WHERE
+    city.city= 'New York'
+        and city.city_id = address.city_id
+        and customer.address_id=address.address_id
+        AND film.film_id = inventory.film_id
+        AND inventory.inventory_id = rental.inventory_id
+        AND rental.customer_id = customer.customer_id
+ORDER BY Title;
+
+-- Retrieve the first and last names of customers who have rented films in the last year.
+select  distinct concat(customer.first_name, ' ' ,  customer.last_name) as FullName
+ from customer
+inner join rental on rental.customer_id = customer.customer_id
+where  year(rental.rental_date) = year(DATE_SUB("2006-05-25", INTERval 1 year));
+
+-- List the titles of films that have been rented by more than 20 different customers.
+SELECT 
+    film.title AS Title
+FROM
+    film
+        INNER JOIN
+    inventory ON film.film_id = inventory.film_id
+        INNER JOIN
+    rental ON inventory.inventory_id = rental.inventory_id
+GROUP BY film.title
+HAVING COUNT(DISTINCT rental.customer_id) > 20;
+
+-- Retrieve the first and last names of customers who have rented films with a replacement cost greater than $30.
+
+select concat(customer.first_name, customer.last_name) as FullName, replacement_cost from customer 
+Inner Join rental on customer.customer_id = rental.customer_id
+inner join inventory ON inventory.inventory_id = rental.inventory_id
+inner join film on film.film_id = inventory.film_id
+where film.replacement_cost > 25;
+
+-- List the titles of films that have been rented by customers who have made payments greater than $10
+SELECT FILM.TITLE AS Title from film
+inner join inventory on film.film_id = inventory.film_id
+inner join rental on inventory.inventory_id = rental.inventory_id
+inner join payment on payment.rental_id = rental.rental_id
+where Payment.amount > 10;
+
+-- Find the total number of rentals made by each customer.
+-- Find the total revenue generated by each customer.
+
+select customer_id, count(distinct rental_id) as rent from rental 
+group by customer_id
+order by rent desc; 
+
+-- Retrieve the first and last names of customers who have rented films with a rental rate less than $1.99.
+select concat(customer.first_name, ' ' , customer.last_name) as FullName from customer 
+Inner Join rental on customer.customer_id = rental.customer_id
+inner join inventory ON inventory.inventory_id = rental.inventory_id
+inner join film on film.film_id = inventory.film_id
+where film.rental_rate > 1.99;
+
+-- Find the total amount of payments made by each customer 
+
+select distinct(customer_id) , sum(amount) as total  from payment 
+group by customer_id
+order by total desc ;
+
+
+-- Retrieve the first and last names of customers who have rented films with a length greater than 150 minutes.
+
+select concat(customer.first_name, ' ' , customer.last_name) as FullName from customer 
+Inner Join rental on customer.customer_id = rental.customer_id
+inner join inventory ON inventory.inventory_id = rental.inventory_id
+inner join film on film.film_id = inventory.film_id
+where film.length  > 150;
+
+-- Retrieve the first and last names of customers who have rented films with a rental rate of $4.99.
+
+select concat(customer.first_name, ' ' , customer.last_name) as FullName from customer 
+Inner Join rental on customer.customer_id = rental.customer_id
+inner join inventory ON inventory.inventory_id = rental.inventory_id
+inner join film on film.film_id = inventory.film_id
+where film.rental_rate  > 4.99;
+
+-- List the titles of films that have been rented by customers who live in Florida.
+
+SELECT 
+   distinct film.title as Title
+FROM
+    customer,
+    film,
+    inventory,
+    rental,
+    address,
+    city
+WHERE
+    city.city= 'Florida'
+        and city.city_id = address.city_id
+        and customer.address_id=address.address_id
+        AND film.film_id = inventory.film_id
+        AND inventory.inventory_id = rental.inventory_id
+        AND rental.customer_id = customer.customer_id
+ORDER BY Title;
+
+-- Retrieve the first and last names of customers who have rented films with a rating of 'PG-13'.
+
+select concat(customer.first_name, ' ' , customer.last_name) as FullName from customer 
+Inner Join rental on customer.customer_id = rental.customer_id
+inner join inventory ON inventory.inventory_id = rental.inventory_id
+inner join film on film.film_id = inventory.film_id
+where film.rating = 'PG-13';
+
+select count(rental_id) as Total, customer_id from rental
+WHERE rental_date >  DATE_SUB(2005-06-25, INTERVAL 1 WEEK) 
+GROUP BY customer_id;
